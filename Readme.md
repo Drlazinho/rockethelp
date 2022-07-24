@@ -56,3 +56,86 @@ Também é preciso tipifica o SVG, criando a pasta `@types` e dentro dela o arqu
 É um biblioteca de ícones que pode ser usada no React Native, React e etc.
 
 Install `yarn add phosphor-react-native`
+
+## Estrutura visual e Navegação
+
+### VStack e HStack
+*   VStack empilha os elementos verticalmente
+*   HStack empilha os elementos horizontalmente
+
+### Types Props Native
+Alguns elementos são tipificados pelo proprio Native
+~~~~~react
+import React from 'react'
+import {Button as ButtonNativeBase, IButtonProps, Heading} from 'native-base'
+
+type Props = IButtonProps & {   
+  title: string;
+}
+
+export function Button({title, ...rest}: Props) {
+  return ( 
+....
+~~~~
+### UseState sem/com parametros - um detalhe.
+Sempre quando quer executar uma função em uma interação, e essa função passa um parametro, o código deve ser escrito dessa forma 
+~~~~react
+    onPress={() => setStatusSelected('open')}
+~~~~
+Sem parametro...
+~~~~react
+onPress={setStatusSelected}
+~~~~
+
+### React-Navigation
+Biblioteca de Rotas e Navegação para aplicações em Expo e React Native
+
+`yarn add @react-navigation/native`
+
+Dependencias da biblioteca
+
+`yarn add react-native-screens react-native-safe-area-context`
+
+
+Estratégia de Navegação do react-navigation em pilha (abrir uma janela de navegação sobre outra)
+
+`yarn add @react-navigation/native-stack`
+
+#### Aplicando React Navigation
+A aplicação é semelhante no React-RouterDom.
+
+~~~~react
+import { createNativeStackNavigator } from '@react-navigation/native-stack'
+
+import Home from '../screens/Home'
+import Details from '../screens/Details'
+import Register from '../screens/Register'
+
+const {Navigator, Screen} = createNativeStackNavigator()
+
+export function AppRoutes() {
+  return(
+    <Navigator screenOptions={{headerShown: false}}>
+      <Screen name="home" component={Home}/>
+      <Screen name="new" component={Register}/>
+      <Screen name="details" component={Details}/>
+    </Navigator>
+  )
+}
+~~~~
+
+#### Aplicando a navegação dentro de um contexto
+~~~~react
+import {NavigationContainer} from '@react-navigation/native'
+
+import { SignIn } from '../screens/SignIn';
+import {AppRoutes} from './app.routes';
+
+export function Routes() {
+  return(
+    <NavigationContainer>
+      <AppRoutes/>
+    </NavigationContainer>
+  )
+}
+~~~~

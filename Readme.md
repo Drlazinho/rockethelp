@@ -139,3 +139,121 @@ export function Routes() {
   )
 }
 ~~~~
+
+##  Integração com Firebase e finalização
+
+#### Instalando o Firebase
+
+[O firebase tem uma documentação apropriada para React Native](https://rnfirebase.io/)
+
+`yarn add @react-native-firebase/app`
+
+Com o expo podemos utilizar plugins que automatizar algumas configurações do firebase
+
+~~~~json
+    "plugins": [
+      "@react-native-firebase/app"
+    ],
+~~~~
+
+Depois é preciso registar o App no firebase e fazer o download do `google-services.json` para Android, e do `GoogleService-info.plist` para IOS.
+
+Em seguida colocar esses arquivos no raíz do projeto e adiciona ao `app.json`
+
+~~~~json
+...
+    "android": {
+      "package": "com.rockethelp",
+      "googleServicesFile": "./google-services.json"
+    },
+    "ios" : {
+      "bundleIdentifier": "com.rockethelp",
+      "googleServicesFile":"./GoogleService-info.plist"
+    }
+~~~~
+Execute o comando `expo prebuild` e assim ela prepara automaticamente a aplicação para o firebase
+
+### Instalação do Modulo Firebase
+`yarn add @react-native-firebase/installations`
+
+### Autenticação Firebase
+
+Install the authentication module
+`yarn add 
+@react-native-firebase/auth`
+
+
+### Aplicação da Auth no código
+
+Função de SignIn - onde o usuário faz o login no App.
+
+~~~~react
+'src\screens\SignIn.tsx'
+
+  function handleSignIn() {
+    if(!email || !password){
+      return Alert.alert("Entrar", "Informe e-mail e senha");
+    }
+
+    setIsLoading(true);
+
+    auth().signInWithEmailAndPassword(email, password)
+    .then(response => {
+      console.log(response)
+    })
+    .catch((error)=>{
+      console.log(error)
+      setIsLoading(false)
+
+      if(error.code === 'auth/invalid-email'){
+        return Alert.alert('Entrar', 'E-mail ou senha inválida.');
+      }
+
+      if(error.code === 'auth/wrong-password'){
+        return Alert.alert('Entrar', 'E-mail ou senha inválida.');
+      }
+      if(error.code === 'auth/user-not-found'){
+        return Alert.alert('Entrar', 'Usuário não cadastrado.');
+      }
+      return Alert.alert('Entrar', 'Não foi possível acessar')
+    })
+  }
+~~~~
+
+Caso o usuário é autenticado, ele é levado para a tela Home.
+
+~~~~react
+'src\routes\index.tsx'
+
+import {NavigationContainer} from '@react-navigation/native'
+import auth, {FirebaseAuthTypes} from '@react-native-firebase/auth'
+import { useState, useEffect } from 'react';
+import { SignIn } from '../screens/SignIn';
+import {AppRoutes} from './app.routes';
+import { Loading } from '../components/Loading';
+
+export function Routes() {
+  const [loading, setIsLoading] = useState(true);
+  const [user, setUser] = useState<FirebaseAuthTypes.User>()
+
+  useEffect(() => {
+    const subscriber = auth()
+    .onAuthStateChanged(response => {
+      setUser(response)
+      setIsLoading(false)
+    });
+
+    return subscriber;
+  }, []);
+
+  if(loading) {
+    return <Loading/>
+  }
+
+  return(
+    <NavigationContainer>
+      {user? <AppRoutes/> : <SignIn/>}
+    </NavigationContainer>
+  )
+}
+~~~~

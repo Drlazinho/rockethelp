@@ -28,12 +28,6 @@ function Home() {
       when: '18/07/2022 às 14:00',
       status: 'open'
     },
-    {
-      id: '123',
-      patrimony: '12234214',
-      when: '18/07/2022 às 14:00',
-      status: 'open'
-    },
   ]);
 
   const { colors } = useTheme()

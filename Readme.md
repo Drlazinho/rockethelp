@@ -65,7 +65,7 @@ Install `yarn add phosphor-react-native`
 
 ### Types Props Native
 Alguns elementos são tipificados pelo proprio Native
-~~~~~react
+~~~~react
 import React from 'react'
 import {Button as ButtonNativeBase, IButtonProps, Heading} from 'native-base'
 
@@ -256,4 +256,50 @@ export function Routes() {
     </NavigationContainer>
   )
 }
+~~~~
+
+### Criando/Enviando Registros para Firestore.
+
+Ao fazer Nova Solicitação, é levado para outra página em que você dar a description e o título.
+Essa informações são armazenadas nos dados juntamente com o horário em que é criado.
+
+~~~~React
+'src/screen/Register'
+....
+function handleNewOrderRegister() {
+    if (!patrimony || !description) {
+      return Alert.alert('Registrar', 'Preencha todos os campos.');
+    }
+
+    setIsLoading(true);
+
+    firestore()
+      .collection('orders')
+      .add({
+        patrimony,
+        description,
+        status: 'open',
+        created_at: firestore.FieldValue.serverTimestamp()
+      })
+      .then(() => {
+        Alert.alert("Solicitação", "Solicitação registrada com sucesso.");
+        navigation.goBack();
+      })
+      .catch((error) => {
+        console.log(error);
+        setIsLoading(false);
+        return Alert.alert('Solicitação', 'Não foi possível registrar o pedido');
+      });
+  }
+~~~~
+Nessa Parte é onde definimos os tipos de informações que serão criadas. `firestore.FieldValue.serverTimestamp()` pega o horário em que é criado/registrado.
+~~~~react
+    firestore()
+      .collection('orders')
+      .add({
+        patrimony,
+        description,
+        status: 'open',
+        created_at: firestore.FieldValue.serverTimestamp()
+      })
 ~~~~

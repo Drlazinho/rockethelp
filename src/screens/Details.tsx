@@ -1,17 +1,19 @@
-import { useRoute } from '@react-navigation/native'
-import { HStack, Text, VStack, useTheme, ScrollView } from 'native-base'
+import { useNavigation, useRoute } from '@react-navigation/native'
+import { HStack, Text, VStack, useTheme, ScrollView, Box } from 'native-base'
 import { useState, useEffect } from 'react'
 import Header from '../components/Header'
 import { OrderProps } from '../components/Order'
 import firestore from '@react-native-firebase/firestore'
 import { OrderFirestoreDTO } from '../DTOs/OrderFirestoreDTO'
 import { dateFormat } from '../utils/firestoresDateFormat'
+import { Alert } from 'react-native'
 import { Loading } from '../components/Loading'
 import {
   CircleWavyCheck,
   Hourglass,
   DesktopTower,
-  Clipboard
+  Clipboard,
+  ClipboardText
 } from 'phosphor-react-native'
 import { CardDetails } from '../components/CardsDetails'
 import { Input } from '../components/Input'
@@ -37,6 +39,31 @@ export default function Details() {
   const { orderId } = route.params as RouteParams
 
   const { colors } = useTheme()
+
+  const navigation = useNavigation();
+
+  function handleOrderClose(){
+    if(!solution){
+      return Alert.alert('Solicitação', 'Informa a solução para encerrar a solicitação');
+    }
+
+    firestore()
+    .collection<OrderFirestoreDTO>('orders')
+    .doc(orderId)
+    .update({
+      status: 'closed',
+      solution,
+      closed_at: firestore.FieldValue.serverTimestamp()
+    })
+    .then(()=> {
+      Alert.alert('Solicitação', 'Solicitação encerrada');
+      navigation.goBack();
+    })
+    .catch((error)=> {
+      console.log(error);
+      Alert.alert("Solicitação", "Não foi possível encerrar a solicitação");
+    })
+  }
 
   useEffect(() => {
     firestore()
@@ -74,8 +101,9 @@ export default function Details() {
   }
 
   return (
-    <VStack flex={1} bg="gray.700">
-      <Header title="Solicitação" />
+    <VStack flex={1} py={3} bg="gray.700">
+      <Header p={6} title="Solicitação" />
+
 
       <HStack bg="gray.500" justifyContent="center" p={4}>
         {order.status === 'closed' ? (
@@ -106,24 +134,29 @@ export default function Details() {
         <CardDetails
           title="Descrição"
           description={order.description}
-          icon={Clipboard}
+          icon={ClipboardText}
         />
         <CardDetails
           title="Solução"
           icon={CircleWavyCheck}
+          description={order.solution}
           footer={order.closed && `Encerrado em ${order.closed}`}
         >
-          <Input
-            placeholder="Descrição da solução"
-            onChangeText={setSolution}
-            h={24}
-            textAlignVertical="top"
-            multiline
-          />
+          {
+            order.status === 'open' &&
+                      <Input
+                      placeholder="Descrição da solução"
+                      onChangeText={setSolution}
+                      h={24}
+                      textAlignVertical="top"
+                      multiline
+                    />
+          }
+
         </CardDetails>
       </ScrollView>
 
-      {!order.closed && <Button title="Encerrar solicitação" m={5} />}
+      {!order.closed && <Button title="Encerrar solicitação" m={5} onPress={handleOrderClose}/>}
     </VStack>
   )
 }

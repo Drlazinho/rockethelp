@@ -125,7 +125,7 @@ export function AppRoutes() {
 ~~~~
 
 #### Aplicando a navegação dentro de um contexto
-~~~~react
+~~~~javascript
 import {NavigationContainer} from '@react-navigation/native'
 
 import { SignIn } from '../screens/SignIn';
@@ -187,7 +187,7 @@ Install the authentication module
 
 Função de SignIn - onde o usuário faz o login no App.
 
-~~~~react
+~~~~javascript
 'src\screens\SignIn.tsx'
 
   function handleSignIn() {
@@ -222,7 +222,7 @@ Função de SignIn - onde o usuário faz o login no App.
 
 Caso o usuário é autenticado, ele é levado para a tela Home.
 
-~~~~react
+~~~~javascript
 'src\routes\index.tsx'
 
 import {NavigationContainer} from '@react-navigation/native'
@@ -263,7 +263,7 @@ export function Routes() {
 Ao fazer Nova Solicitação, é levado para outra página em que você dar a description e o título.
 Essa informações são armazenadas nos dados juntamente com o horário em que é criado.
 
-~~~~React
+~~~~javascript
 'src/screen/Register'
 ....
 function handleNewOrderRegister() {
@@ -293,7 +293,7 @@ function handleNewOrderRegister() {
   }
 ~~~~
 Nessa Parte é onde definimos os tipos de informações que serão criadas. `firestore.FieldValue.serverTimestamp()` pega o horário em que é criado/registrado.
-~~~~react
+~~~~javascript
     firestore()
       .collection('orders')
       .add({
@@ -302,4 +302,73 @@ Nessa Parte é onde definimos os tipos de informações que serão criadas. `fir
         status: 'open',
         created_at: firestore.FieldValue.serverTimestamp()
       })
+~~~~
+
+### Renderizando os dados na Home
+
+O metodo onSnapshot atualiza os dados em tempo real.
+
+
+~~~~javascript
+  useEffect(() => {
+    setIsLoading(true)
+
+    const subscriber = firestore()
+    .collection('orders')
+    .where('status', '==', statusSelected)
+    .onSnapshot(snapshot => {
+      const data = snapshot.docs.map(
+        doc =>{
+          const {patrimony, description, status, created_at} = doc.data()
+
+          return {
+            id: doc.id,
+            patrimony,
+            description,
+            status,
+            when: dateFormat(created_at)
+          }
+        }
+      )
+      setOrders(data)
+      setIsLoading(false)
+    })
+    return subscriber
+
+  }, [statusSelected])
+~~~~
+
+`dateFormat` foi criado para adaptar o tempo para o javascript.
+~~~~typescript
+import { FirebaseFirestoreTypes } from "@react-native-firebase/firestore";
+
+export function dateFormat(timestamp: FirebaseFirestoreTypes.Timestamp) {
+  if(timestamp) {
+    const date = new Date(timestamp.toDate());
+
+    const day = date.toLocaleDateString('pt-BR');
+    const hour = date.toLocaleTimeString('pt-BR');
+
+
+    return `${day} às ${hour}`;
+  }
+}
+~~~~
+
+### DTOs
+Data Transfer Object (DTO) ou simplesmente Transfer Object é um padrão de projetos bastante usado em Java para o transporte de dados entre diferentes componentes de um sistema, diferentes instâncias ou processos de um sistema distribuído ou diferentes sistemas via serialização.
+
+A ideia consiste basicamente em agrupar um conjunto de atributos numa classe simples de forma a otimizar a comunicação.
+
+~~~~javascript
+import { FirebaseFirestoreTypes } from "@react-native-firebase/firestore";
+
+export type OrderFirestoreDTO = {
+  patrimony: string;
+  description: string;
+  status: 'open' | 'closed',
+  solution?: string;
+  created_at: FirebaseFirestoreTypes.Timestamp;
+  closed_at?: FirebaseFirestoreTypes.Timestamp;
+}
 ~~~~

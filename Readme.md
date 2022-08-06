@@ -2,6 +2,29 @@
 
 # Desenvolvendo a RocketLabe
 
+Aplicativo que gerencia uma lista de solicitações.
+
+Resumo do Desenvolvimento:
+
+- Iniciação com Expo
+- Configuração de Ambiente
+- Estilização com Native Base.
+- Utilização de fontes externas.
+- Alerts
+- Props
+- Typescript
+- Conceitos Hooks
+- Navegação
+- Native SVG
+- Formatação de Data
+- DTOs
+- Renderização Condicional.
+- Integração e Autenticação do Firebase.
+
+<img src="image.jpg" width="80%"/>
+
+[Demonstração em vídeo - Clique Aqui](https://www.linkedin.com/posts/lazarobonfim_resultado-da-aplica%C3%A7%C3%A3o-rockethelp-n%C3%A3o-conseguir-activity-6961749772013613056-AFE9?utm_source=linkedin_share&utm_medium=member_desktop_web)
+
 ## Primeiros passos
 -   Instale Expo Cli no terminal (se for a primeira vez)
 ````bash
@@ -65,7 +88,7 @@ Install `yarn add phosphor-react-native`
 
 ### Types Props Native
 Alguns elementos são tipificados pelo proprio Native
-~~~~react
+~~~~javascript
 import React from 'react'
 import {Button as ButtonNativeBase, IButtonProps, Heading} from 'native-base'
 
@@ -79,11 +102,11 @@ export function Button({title, ...rest}: Props) {
 ~~~~
 ### UseState sem/com parametros - um detalhe.
 Sempre quando quer executar uma função em uma interação, e essa função passa um parametro, o código deve ser escrito dessa forma 
-~~~~react
+~~~~javascript
     onPress={() => setStatusSelected('open')}
 ~~~~
 Sem parametro...
-~~~~react
+~~~~javascript
 onPress={setStatusSelected}
 ~~~~
 
@@ -104,7 +127,7 @@ Estratégia de Navegação do react-navigation em pilha (abrir uma janela de nav
 #### Aplicando React Navigation
 A aplicação é semelhante no React-RouterDom.
 
-~~~~react
+~~~~javascript
 import { createNativeStackNavigator } from '@react-navigation/native-stack'
 
 import Home from '../screens/Home'

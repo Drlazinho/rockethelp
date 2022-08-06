@@ -127,7 +127,7 @@ export default function Details() {
       <ScrollView mx={5} showsVerticalScrollIndicator={false}>
         <CardDetails
           title="equipamento"
-          description={`Patrimônio ${order.patrimony}`}
+          description={`${order.patrimony}`}
           icon={DesktopTower}
           footer={order.when}
         />
